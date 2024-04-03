@@ -5,13 +5,7 @@ from datetime import datetime
 import threading
 import statistics  # Para calcular média, mediana, etc.
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  
-    allow_credentials=True,
-    allow_methods=["*"],  
-    allow_headers=["*"],  
-)
+
 # Estrutura para armazenar as informações no banco de dados em memória
 packets_info = []   # Vamos alterar para uma connection string com mongoDB em breve
 
@@ -40,6 +34,13 @@ threading.Thread(target=capture_ipv4_packets, daemon=True).start()
 
 app = FastAPI()
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  
+    allow_credentials=True,
+    allow_methods=["*"],  
+    allow_headers=["*"],  
+)
 @app.get("/packets-sizes    ")
 def get_packet_sizes():
     return packets_info
