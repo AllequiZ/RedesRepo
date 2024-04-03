@@ -1,9 +1,17 @@
 from fastapi import FastAPI
 from scapy.all import sniff, IP, TCP, UDP
+from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime
 import threading
 import statistics  # Para calcular média, mediana, etc.
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  
+    allow_credentials=True,
+    allow_methods=["*"],  
+    allow_headers=["*"],  
+)
 # Estrutura para armazenar as informações no banco de dados em memória
 packets_info = []   # Vamos alterar para uma connection string com mongoDB em breve
 
@@ -64,3 +72,6 @@ def get_packet_sizes_time_range(start: str, end: str):
         "min": min(sizes),
         "average": sum(sizes) / len(sizes)
     }
+
+
+
