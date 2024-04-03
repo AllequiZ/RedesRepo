@@ -74,6 +74,12 @@ def get_packet_sizes_time_range(start: str, end: str):
         "average": sum(sizes) / len(sizes)
     }
 
+# este endpoint Calcula o tamanho máximo e mínimo dos pacotes capturados.
+#Determina a média dos tamanhos dos pacotes.
+#Calcula a diferença entre os tamanhos máximos e mínimos dos pacotes.
+#Conta quantos pacotes têm tamanhos acima e abaixo da média.
+#Calcula a porcentagem de pacotes que estão acima e abaixo da média dos tamanhos.
+
 @app.get("/packets-sizes-comparasion")
 def get_packet_sizes_comparasion():   
      if len(packets_info) == 0:
