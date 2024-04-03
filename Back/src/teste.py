@@ -4,13 +4,13 @@ from datetime import datetime
 import threading
 import statistics  # Para calcular média, mediana, etc.
 
-# Estrutura para armazenar as informações no banco de dados
-packets_info = []
+# Estrutura para armazenar as informações no banco de dados em memória
+packets_info = []   # Vamos alterar para uma connection string com mongoDB em breve
 
 def capture_ipv4_packets():
     def packet_callback(packet):
         if IP in packet:
-            packet_info = {
+            packet_info = { 
                 "timestamp": datetime.now(),
                 "packet_size": len(packet),
                 "src_ip": packet[IP].src,
@@ -32,11 +32,11 @@ threading.Thread(target=capture_ipv4_packets, daemon=True).start()
 
 app = FastAPI()
 
-@app.get("/packets-sizes")
+@app.get("/packets-sizes    ")
 def get_packet_sizes():
     return packets_info
 
-@app.get("/packets-sizes-variation")
+@app.get("/packets-sizes-variation")   # Rota para obeter os tamanhos do pacote e suas variações
 def get_packet_size_variation():
     if len(packets_info) == 0:
         return {"error": "No packets captured yet"}
@@ -51,7 +51,7 @@ def get_packet_size_variation():
         "std_deviation": statistics.stdev(sizes) if len(sizes) > 1 else 0
     }
 
-@app.get("/packets-sizes-time-range")
+@app.get("/packets-sizes-time-range")     # Rota para  obter os tamanhos do pacote em um intervalo de tempo 
 def get_packet_sizes_time_range(start: str, end: str):
     start_datetime = datetime.fromisoformat(start)
     end_datetime = datetime.fromisoformat(end)
