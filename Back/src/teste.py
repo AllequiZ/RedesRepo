@@ -74,5 +74,23 @@ def get_packet_sizes_time_range(start: str, end: str):
         "average": sum(sizes) / len(sizes)
     }
 
-
-
+@app.get("/packets-sizes-comparasion")
+def get_packet_sizes_comparasion():   
+     if len(packets_info) == 0:
+        return {"error": "No packets captured yet"} 
+     sizes = [info["packet_size"] for info in packets_info] 
+     average = sum(sizes) / len(sizes)
+     max_size = max(sizes)  
+     min_size = min(sizes)
+     above_average = [size for size in sizes if size > average]    
+     below_average = [size for size in sizes if size < average]    
+     return {
+        "max_size": max_size,
+        "min_size": min_size,
+        "average_size": average,
+        "difference_max_min": max_size - min_size,
+        "count_above_average": len(above_average),
+        "count_below_average": len(below_average),
+        "percentage_above_average": (len(above_average) / len(sizes)) * 100,
+        "percentage_below_average": (len(below_average) / len(sizes)) * 100
+     }
