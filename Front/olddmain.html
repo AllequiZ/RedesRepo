@@ -7,7 +7,7 @@
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
 </head>
 <body>
-<div id="packet-analysis" style="width: 2000px; height:800px; margin: auto;"></div>
+<div id="packet-analysis" style="width: 1000px; height:1000px; margin: 50%;"></div>
 <script>
 
 function fetchPacketSizeComparison() {
@@ -25,19 +25,17 @@ function setupChart(data) {
         subtext: 'Comparação dos Tamanhos dos Pacotes', 
         left: 'center'
     },
-    tooltip: {
-        trigger: 'item'
+    xAxis: {
+        type: 'category',
+        data: ['Tamanho Máximo', 'Tamanho Mínimo', 'Tamanho médio', 'Diferença Max-Min', 'Contagem Acima da Média', 'Contagem abaixo da Média', 'Percentual acima da média', 'Percentual Abaixo da Média']
     },
-    legend: {
-        orient: 'vertical',
-        left: '5%',
-        top: '35%',
+    yAxis: {
+        type: 'value'
     },
     series: [
         {
             name: 'Tamanhos dos Pacotes', 
-            type: 'pie',
-            radius: '50%',
+            type: 'bar',
             data: [
                 
                 {value: data.max_size, name: 'Tamanho Máximo'},
@@ -49,7 +47,7 @@ function setupChart(data) {
                 {value: data.percentage_above_average, name: 'Percentual Acima da Média'},
                 {value: data.percentage_below_average, name: 'Percentual Abaixo da Média'}
             ],
-            emphasi0s: {
+            emphasis: {
                 itemStyle: {
                     shadowBlur: 10,
                     shadowOffsetX: 0,
@@ -62,19 +60,13 @@ function setupChart(data) {
     myChart.setOption(option);
 }
 
-function updateChart() {
-    fetchPacketSizeComparison().then(data => {
-        if (data && !data.error) {
-            setupChart(data);
-        } else {
-            console.error('Sem dados ou erro:', data.error);
-        }
-    });
-}
-
-updateChart();
-setInterval(updateChart, 2000);
-
+fetchPacketSizeComparison().then(data => {
+    if (data && !data.error) {
+        setupChart(data);
+    } else {
+        console.error('Sem dados ou erro:', data.error);
+    }
+});
 </script>
 </body>
 </html>
