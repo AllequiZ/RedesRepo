@@ -1,33 +1,77 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Visualização ARP</title>
-    <script src="https://cdn.jsdelivr.net/npm/echarts@5.0.0/dist/echarts.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARP Traffic Visualization</title>
+    <!-- Inclusão do ECharts via CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+    <!-- Inclusão do Axios via CDN para requisições HTTP -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 <body>
     <div id="main" style="width: 600px;height:400px;"></div>
-    <script type="text/javascript">
-        var myChart = echarts.init(document.getElementById('main'));
-        async function fetchData() {
-            const response = await fetch('http://localhost:8000/arp-data');
-            const data = await response.json();
-            const option = {
-                title: {
-                    text: 'Tráfego ARP'
-                },
-                tooltip: {},
-                xAxis: {
-                    data: data.map(item => item.source_ip)
-                },
-                yAxis: {},
-                series: [{
-                    type: 'bar',
-                    data: data.map(item => ({value: 1, name: item.source_ip}))
-                }]
-            };
-            myChart.setOption(option);
+    <script>
+        // Função para inicializar o gráfico e carregar os dados
+        async function loadAndDraw() {
+            try {
+                // Solicita dados ARP do servidor FastAPI
+                const response = await axios.get('http://127.0.0.1:8000/arp-data');
+
+                // Preparar dados para o gráfico
+                const data = response.data.map(item => {
+                    return [
+                        item.source_ip,
+                        item.destination_ip,
+                        item.source_mac,
+                        item.destination_mac,
+                        item.operation
+                    ];
+                });
+
+                // Configuração do gráfico ECharts
+                var chart = echarts.init(document.getElementById('main'));
+                var option = {
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: {
+                            type: 'shadow'
+                        }
+                    },
+                    legend: {
+                        data: ['Source IP', 'Destination IP', 'Source MAC', 'Destination MAC', 'Operation']
+                    },
+                    grid: {
+                        left: '3%',
+                        right: '4%',
+                        bottom: '3%',
+                        containLabel: true
+                    },
+                    xAxis: {
+                        type: 'value',
+                        boundaryGap: [0, 0.01]
+                    },
+                    yAxis: {
+                        type: 'category',
+                        data: ['Source IP', 'Destination IP', 'Source MAC', 'Destination MAC', 'Operation']
+                    },
+                    series: [
+                        {
+                            name: 'Details',
+                            type: 'bar',
+                            data: data
+                        }
+                    ]
+                };
+
+                chart.setOption(option);
+            } catch (error) {
+                console.error('Erro ao carregar dados:', error);
+            }
         }
-        fetchData();
+
+        // Carregar e desenhar o gráfico quando o documento estiver pronto
+        document.addEventListener('DOMContentLoaded', loadAndDraw);
     </script>
 </body>
 </html>

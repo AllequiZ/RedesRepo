@@ -23,12 +23,21 @@ def capture_arp_packets():
     return sniff(filter="arp", prn=handle_packet, store=0, count=10)  # Capture 10 ARP packets
 
 app = FastAPI()
+from fastapi.middleware.cors import CORSMiddleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.on_event("startup")
 def start_arp_capture():
     # Iniciar captura em uma thread separada para não bloquear o servidor
     thread = threading.Thread(target=lambda: arp_data_storage.extend(capture_arp_packets()))
     thread.start()
+
 
 class ARPData(BaseModel):
     source_ip: str
