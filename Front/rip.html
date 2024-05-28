@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RIP Messages Visualization</title>
+    <!-- ECharts -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+    <!-- Axios for HTTP requests -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <h1>RIP Messages Visualization</h1>
+    <div id="ripChart" style="width: 800px;height:600px;"></div>
+
+    <script>
+        const ripChart = echarts.init(document.getElementById('ripChart'));
+
+        async function fetchRIPData() {
+            try {
+                const response = await axios.get('http://127.0.0.1:8000/rip-data');
+                return response.data.filter(packet => packet.protocol === 'RIP'); // Ensure you filter RIP messages, or adjust your API to return only RIP messages
+            } catch (error) {
+                console.error('Failed to fetch RIP data:', error);
+                return [];
+            }
+        }
+
+        async function prepareChartData(data) {
+            // Here you could calculate frequency of routes or any other relevant information
+            const routeFrequency = {};
+
+            data.forEach(packet => {
+                const route = `${packet.source_ip} to ${packet.destination_ip}`;
+                if (!routeFrequency[route]) {
+                    routeFrequency[route] = 0;
+                }
+                routeFrequency[route]++;
+            });
+
+            return Object.entries(routeFrequency).map(([route, frequency]) => {
+                return { name: route, value: frequency };
+            });
+        }
+
+        async function updateChart() {
+            const rawData = await fetchRIPData();
+            const chartData = await prepareChartData(rawData);
+
+            const option = {
+                title: {
+                    text: 'Frequency of RIP Routes',
+                    left: 'center'
+                },
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{a} <br/>{b} : {c} ({d}%)'
+                },
+                legend: {
+                    orient: 'vertical',
+                    left: 'left',
+                    data: chartData.map(item => item.name)
+                },
+                series: [
+                    {
+                        name: 'Routes',
+                        type: 'pie',
+                        radius: '55%',
+                        data: chartData,
+                        emphasis: {
+                            itemStyle: {
+                                shadowBlur: 10,
+                                shadowOffsetX: 0,
+                                shadowColor: 'rgba(0, 0, 0, 0.5)'
+                            }
+                        }
+                    }
+                ]
+            };
+
+            ripChart.setOption(option);
+        }
+
+        document.addEventListener('DOMContentLoaded', updateChart);
+    </script>
+</body>
+</html>
